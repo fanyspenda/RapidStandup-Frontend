@@ -2,6 +2,7 @@ import React from "react";
 import { Formik, Form, Field } from "formik";
 import * as yup from "yup";
 import { Segment, Button, Label, Card } from "semantic-ui-react";
+import axios from "axios";
 
 import Input from "../../components/input";
 
@@ -30,7 +31,8 @@ export default class Meeting extends React.Component<{}, MeetingState> {
     this.setState({
       isBegin: true, //inisial memulai Meeting
       secondPassed: 0, //mereset detik
-      minutePassed: -1 // mereset menit
+      minutePassed: -1, // mereset menit
+      duration: value.duration
     });
     let countDown = setInterval(() => {
       if (minutes >= 0) {
@@ -67,7 +69,7 @@ export default class Meeting extends React.Component<{}, MeetingState> {
   };
 
   handleMeeting = (values: MeetingState) => {
-    if (this.state.isBegin == false) {
+    if (this.state.isBegin === false) {
       this.startMeeting(values);
     } else {
       this.stopMeeting();
@@ -78,6 +80,25 @@ export default class Meeting extends React.Component<{}, MeetingState> {
     this.setState({
       isBegin: false
     });
+    console.log(this.state.duration);
+  };
+
+  submitTime = () => {
+    axios
+      .post("https://rapid-standup-backend.herokuapp.com/standup", {
+        duration: this.state.duration,
+        passed: {
+          minutes: this.state.minutePassed,
+          seconds: this.state.secondPassed
+        },
+        note: "lorem ipsum dolor sit amet"
+      })
+      .then(res => {
+        alert("data Berhasil disimpan!");
+      })
+      .catch(err => {
+        alert(`terjadi error: ${err}`);
+      });
   };
 
   MeetingSchema = yup.object().shape({
@@ -103,7 +124,11 @@ export default class Meeting extends React.Component<{}, MeetingState> {
             >
               {() => (
                 <Form>
-                  <Field name="duration" component={Input} />
+                  <Field
+                    name="duration"
+                    component={Input}
+                    disabled={this.state.isBegin}
+                  />
                   <br />
                   {this.state.isBegin ? (
                     <Button fluid type="submit" color="red">
@@ -122,6 +147,22 @@ export default class Meeting extends React.Component<{}, MeetingState> {
                 </Form>
               )}
             </Formik>
+            {(this.state.minutePassed !== -1 || this.state.seconds !== 0) &&
+            this.state.isBegin === false ? (
+              <div>
+                <br />
+                <br />
+                <br />
+                <Button
+                  onClick={this.submitTime}
+                  fluid
+                  color="green"
+                  size="huge"
+                >
+                  Simpan Data Meeting
+                </Button>
+              </div>
+            ) : null}
           </Segment>
         </Card>
 
@@ -131,6 +172,7 @@ export default class Meeting extends React.Component<{}, MeetingState> {
           size="massive"
           color="grey"
           style={{ position: "fixed", bottom: 0, right: 0 }}
+          attached="bottom right"
         >
           <p
             style={{ fontSize: "3vw" }}
