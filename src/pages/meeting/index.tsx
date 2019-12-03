@@ -181,7 +181,6 @@ export default class Meeting extends React.Component<{}, MeetingState> {
         <br />
         <br />
         <TextEditor onChange={this.handleEditorChange} />
-        <Button onClick={this.checkEditor}>Click to see text</Button>
         <Label
           size="massive"
           color="grey"
