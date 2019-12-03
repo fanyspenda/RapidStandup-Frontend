@@ -1,6 +1,7 @@
 import React from "react";
 import { Segment, Card } from "semantic-ui-react";
 import axios from "axios";
+import { RouteComponentProps } from "react-router-dom";
 
 interface passedObject {
   minutes: number;
@@ -18,24 +19,11 @@ interface logMeetingState {
   isLoading: boolean;
 }
 
-class LogMeeting extends React.Component<{}, logMeetingState> {
+interface LogMeetingProps extends RouteComponentProps {}
+
+class LogMeeting extends React.Component<LogMeetingProps, logMeetingState> {
   state: logMeetingState = {
-    meetings: [
-      // {
-      //   duration: 10,
-      //   passed: {
-      //     minutes: 3,
-      //     seconds: 26
-      //   }
-      // },
-      // {
-      //   duration: 15,
-      //   passed: {
-      //     minutes: 10,
-      //     seconds: 27
-      //   }
-      // }
-    ],
+    meetings: [],
     isLoading: true
   };
 
@@ -50,18 +38,26 @@ class LogMeeting extends React.Component<{}, logMeetingState> {
       });
   };
 
+  handleCardClick = (meeting: Object) => {
+    this.props.history.push("/detailmeeting", meeting);
+  };
+
   render() {
     return (
       <Segment basic loading={this.state.isLoading}>
-        <Card.Group>
+        <Card.Group centered>
           {this.state.meetings.map((meeting, index) => (
-            <Card fluid key={meeting._id}>
-              <Segment basic>{`Meeting ke-${index +
-                1} dijadwalkan berjalan selama ${
-                meeting.duration
-              } menit, selesai dalam ${meeting.passed.minutes} menit ${
-                meeting.passed.seconds
-              } detik`}</Segment>
+            <Card
+              key={meeting._id}
+              onClick={() => this.handleCardClick(meeting)}
+            >
+              <Card.Content>
+                {`Meeting ke-${index + 1} dijadwalkan berjalan selama ${
+                  meeting.duration
+                } menit, selesai dalam ${meeting.passed.minutes} menit ${
+                  meeting.passed.seconds
+                } detik`}
+              </Card.Content>
             </Card>
           ))}
         </Card.Group>
