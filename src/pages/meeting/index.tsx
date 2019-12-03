@@ -5,6 +5,7 @@ import { Segment, Button, Label, Card } from "semantic-ui-react";
 import axios from "axios";
 
 import Input from "../../components/input";
+import TextEditor from "../../components/textEditor";
 
 interface MeetingState {
   duration: number;
@@ -13,6 +14,7 @@ interface MeetingState {
   minutes: number;
   minutePassed: number;
   secondPassed: number;
+  note: string;
 }
 
 export default class Meeting extends React.Component<{}, MeetingState> {
@@ -22,7 +24,8 @@ export default class Meeting extends React.Component<{}, MeetingState> {
     secondPassed: 0,
     isBegin: false,
     seconds: 0,
-    minutes: 0
+    minutes: 0,
+    note: "test"
   };
 
   startMeeting = (value: MeetingState) => {
@@ -83,7 +86,7 @@ export default class Meeting extends React.Component<{}, MeetingState> {
     console.log(this.state.duration);
   };
 
-  submitTime = () => {
+  submitMeetingData = () => {
     axios
       .post("https://rapid-standup-backend.herokuapp.com/standup", {
         duration: this.state.duration,
@@ -91,7 +94,7 @@ export default class Meeting extends React.Component<{}, MeetingState> {
           minutes: this.state.minutePassed,
           seconds: this.state.secondPassed
         },
-        note: "lorem ipsum dolor sit amet"
+        note: this.state.note
       })
       .then(res => {
         alert("data Berhasil disimpan!");
@@ -99,6 +102,16 @@ export default class Meeting extends React.Component<{}, MeetingState> {
       .catch(err => {
         alert(`terjadi error: ${err}`);
       });
+  };
+
+  handleEditorChange = (e: any) => {
+    this.setState({
+      note: e.target.getContent()
+    });
+  };
+
+  checkEditor = () => {
+    alert(this.state.note);
   };
 
   MeetingSchema = yup.object().shape({
@@ -154,7 +167,7 @@ export default class Meeting extends React.Component<{}, MeetingState> {
                 <br />
                 <br />
                 <Button
-                  onClick={this.submitTime}
+                  onClick={this.submitMeetingData}
                   fluid
                   color="green"
                   size="huge"
@@ -165,14 +178,15 @@ export default class Meeting extends React.Component<{}, MeetingState> {
             ) : null}
           </Segment>
         </Card>
-
         <br />
         <br />
+        <TextEditor onChange={this.handleEditorChange} />
+        <Button onClick={this.checkEditor}>Click to see text</Button>
         <Label
           size="massive"
           color="grey"
-          style={{ position: "fixed", bottom: 0, right: 0 }}
-          attached="bottom right"
+          style={{ position: "fixed", top: "50%", right: 0 }}
+          attached="top right"
         >
           <p
             style={{ fontSize: "3vw" }}
